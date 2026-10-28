@@ -1,0 +1,2152 @@
+{
+  "name": "Voltara Commercial Solar - Lead Scoring & Follow-Up",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {
+          "ignoreBots": true,
+          "onlyRunIf": "={{ !!$json.body?.email && !!$json.body?.message }}"
+        }
+      },
+      "id": "a9d8ad8a-d671-4b8a-a9bd-09220b434a3a",
+      "name": "New Lead From Website Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "name",
+              "value": "={{ ($json.body?.name ?? $json.name ?? \"\").trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "n2",
+              "name": "email",
+              "value": "={{ ($json.body?.email ?? $json.email ?? \"\").trim().toLowerCase() }}",
+              "type": "string"
+            },
+            {
+              "id": "n3",
+              "name": "phone",
+              "value": "={{ $json.body?.phone ?? $json.phone ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n4",
+              "name": "company",
+              "value": "={{ ($json.body?.company ?? $json.company ?? \"\").trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "n5",
+              "name": "message",
+              "value": "={{ $json.body?.message ?? $json.message ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n6",
+              "name": "country",
+              "value": "={{ $json.body?.country ?? $json.country ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n7",
+              "name": "source",
+              "value": "={{ $json.body?.source ?? $json.source ?? \"website\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n8",
+              "name": "receivedAt",
+              "value": "={{ $now.toUTC().toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "n9",
+              "name": "executionId",
+              "value": "={{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "n10",
+              "name": "consent",
+              "value": "={{ $json.body?.consent ?? $json.consent ?? false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "n11",
+              "name": "propertyType",
+              "value": "={{ $json.body?.propertyType ?? $json.propertyType ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n12",
+              "name": "monthlyKwh",
+              "value": "={{ Number($json.body?.monthlyKwh ?? $json.monthlyKwh ?? 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "n13",
+              "name": "roofType",
+              "value": "={{ $json.body?.roofType ?? $json.roofType ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n14",
+              "name": "siteOwnership",
+              "value": "={{ $json.body?.siteOwnership ?? $json.siteOwnership ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "n15",
+              "name": "roofAgeYears",
+              "value": "={{ Number($json.body?.roofAgeYears ?? $json.roofAgeYears ?? 0) }}",
+              "type": "number"
+            },
+            {
+              "id": "n16",
+              "name": "utilityProvider",
+              "value": "={{ $json.body?.utilityProvider ?? $json.utilityProvider ?? \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a06c2124-1a7d-4563-be65-9cbf4b8d538a",
+      "name": "Clean Up Form Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.email }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "rightValue": "@"
+            },
+            {
+              "leftValue": "={{ $json.name }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "52549eca-ecb0-42ee-b0a3-7c469fd060ee",
+      "name": "Name & Email Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"accepted\": true, \"message\": \"Thanks - we have your enquiry and a specialist will be in touch shortly.\" }",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "id": "2dfb92dd-266e-47ae-8d2e-3887248fe5b4",
+      "name": "Reply To Form - Received",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        688,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{ \"accepted\": false, \"error\": \"A valid email address and name are required.\" }",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "24bd3fb1-aa18-4023-8b0a-e4e72e551360",
+      "name": "Reply To Form - Missing Info",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Leads"
+        },
+        "filterByFormula": "=LOWER({email}) = \"{{ $('Clean Up Form Data').item.json.email }}\"",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "id": "3bca3bc7-c968-48aa-94b5-bc58ba57139b",
+      "name": "Find Existing Lead Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        1168,
+        624
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "text": "=Company: {{ $('Clean Up Form Data').item.json.company }}\nEmail: {{ $('Clean Up Form Data').item.json.email }}\nMessage: {{ $('Clean Up Form Data').item.json.message }}",
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{ \"intent\": \"quote_request\", \"urgency\": \"high\", \"budgetSignal\": \"implied\", \"propertyType\": \"warehouse\", \"roofType\": \"flat TPO membrane\", \"siteOwnership\": \"owned\", \"monthlyKwh\": 48000, \"painPoint\": \"demand charges have doubled in two years\", \"confidence\": 0.9 }",
+        "options": {
+          "systemPromptTemplate": "You classify inbound enquiries for a commercial rooftop solar installer. intent must be one of: quote_request, site_assessment, financing_enquiry, general_enquiry, maintenance_existing, supplier_pitch, job_application, spam. urgency must be one of: high, medium, low. budgetSignal must be one of: stated, implied, none. propertyType, roofType and siteOwnership should be extracted ONLY if the sender actually states them - never infer them. monthlyKwh is the stated monthly electricity consumption in kWh, 0 if not mentioned. painPoint is a short phrase in the sender's own terms. confidence is 0 to 1 reflecting how clearly the message states its purpose. A message that says nothing specific is general_enquiry with low confidence - never guess."
+        }
+      },
+      "id": "27003c83-ac2f-45b5-b602-c09644b2451e",
+      "name": "AI Reads Enquiry",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "position": [
+        1664,
+        624
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.4-mini",
+          "cachedResultName": "gpt-5.4-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "9316b971-9b95-494b-9c2b-18a76cae2b78",
+      "name": "AI Model - Read Enquiry",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1664,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const lead = $('Clean Up Form Data').item.json;\nconst intent = ($json.output) || {};\n\nlet existing = {};\ntry { existing = $('Find Existing Lead').item.json || {}; } catch (e) { existing = {}; }\n\nconst hasPriorRecord = Boolean(existing && existing.id);\nconst isCustomer = hasPriorRecord && String(existing.accountStatus || '').toLowerCase() === 'customer';\n\n// Is there already an open lead from this email in the last 24 hours?\nconst openStatuses = ['awaiting_ack', 'escalated'];\nconst priorStatus = String(existing.status || '').toLowerCase();\nlet hoursSincePrior = 9999;\nif (existing.assignedAt) {\n  const prior = new Date(existing.assignedAt).getTime();\n  if (!isNaN(prior)) { hoursSincePrior = (Date.now() - prior) / 3600000; }\n}\nconst isOpenDuplicate = hasPriorRecord && openStatuses.indexOf(priorStatus) > -1 && hoursSincePrior < 24;\n\nconst email = String(lead.email || '').toLowerCase();\nconst domain = email.indexOf('@') > -1 ? email.split('@')[1] : '';\nconst freeMail = ['gmail.com','yahoo.com','hotmail.com','outlook.com','aol.com','icloud.com','proton.me','protonmail.com','live.com','msn.com'];\nconst isCorporate = Boolean(domain) && freeMail.indexOf(domain) === -1;\n\n// Form answers come first; AI-read values only fill gaps.\nconst propertyType = String(lead.propertyType || intent.propertyType || '').toLowerCase();\nconst roofType = String(lead.roofType || intent.roofType || '').toLowerCase();\nconst siteOwnership = String(lead.siteOwnership || intent.siteOwnership || '').toLowerCase();\nconst monthlyKwh = Number(lead.monthlyKwh || intent.monthlyKwh || 0);\nconst roofAge = Number(lead.roofAgeYears || 0);\n\nlet score = 0;\nconst reasons = [];\n\n// Building type\nif (propertyType.indexOf('industrial') > -1 || propertyType.indexOf('warehouse') > -1 || propertyType.indexOf('manufactur') > -1 || propertyType.indexOf('logistics') > -1) { score += 18; reasons.push(\"Industrial building\"); }\nelse if (propertyType.indexOf('commercial') > -1 || propertyType.indexOf('office') > -1 || propertyType.indexOf('retail') > -1 || propertyType.indexOf('agricultur') > -1) { score += 15; reasons.push(\"Commercial building\"); }\nelse if (propertyType.indexOf('residential') > -1 || propertyType.indexOf('home') > -1 || propertyType.indexOf('house') > -1) { score -= 40; reasons.push(\"Home, not a business (we only do commercial)\"); }\nelse { reasons.push(\"Building type not given\"); }\n\n// Electricity use - the strongest sign of a good fit\nif (monthlyKwh >= 50000) { score += 30; reasons.push(\"Very high electricity use\"); }\nelse if (monthlyKwh >= 20000) { score += 22; reasons.push(\"High electricity use\"); }\nelse if (monthlyKwh >= 5000) { score += 12; reasons.push(\"Moderate electricity use\"); }\nelse if (monthlyKwh > 0) { score -= 10; reasons.push(\"Electricity use too low for solar to pay off\"); }\nelse { reasons.push(\"Electricity use not given\"); }\n\n// Do they own the building?\nif (siteOwnership.indexOf('own') > -1) { score += 20; reasons.push(\"Owns the building\"); }\nelse if (siteOwnership.indexOf('lease') > -1 || siteOwnership.indexOf('tenant') > -1 || siteOwnership.indexOf('rent') > -1) { score += 4; reasons.push(\"Rents the building (needs landlord OK)\"); }\nelse { reasons.push(\"Ownership not given\"); }\n\n// Roof\nif (roofType.indexOf('flat') > -1 || roofType.indexOf('tpo') > -1 || roofType.indexOf('epdm') > -1 || roofType.indexOf('membrane') > -1) { score += 14; reasons.push(\"Flat roof (good for solar)\"); }\nelse if (roofType.indexOf('metal') > -1 || roofType.indexOf('standing seam') > -1 || roofType.indexOf('trapezoid') > -1) { score += 12; reasons.push(\"Metal roof (good for solar)\"); }\nelse if (roofType.indexOf('asbestos') > -1) { score -= 25; reasons.push(\"Asbestos roof (must be dealt with first)\"); }\nelse if (roofType.indexOf('tile') > -1 || roofType.indexOf('shingle') > -1 || roofType.indexOf('slate') > -1) { score -= 8; reasons.push(\"Tile, shingle or slate roof (harder to install)\"); }\n\nif (roofAge > 0 && roofAge <= 10) { score += 8; reasons.push(\"Roof is fairly new\"); }\nelse if (roofAge >= 20) { score -= 15; reasons.push(\"Roof is old (may need replacing first)\"); }\n\nif (isCorporate) { score += 8; reasons.push(\"Uses a company email\"); }\nif (lead.company) { score += 5; reasons.push(\"Gave a company name\"); }\n\nif (intent.budgetSignal === 'stated') { score += 12; reasons.push(\"Mentioned a budget\"); }\nelse if (intent.budgetSignal === 'implied') { score += 7; reasons.push(\"Hinted at a budget\"); }\n\nif (intent.urgency === 'high') { score += 10; reasons.push(\"Wants to move quickly\"); }\nelse if (intent.urgency === 'medium') { score += 5; }\n\nconst nonSalesIntents = ['maintenance_existing', 'supplier_pitch', 'job_application', 'spam'];\nconst isNonSales = nonSalesIntents.indexOf(String(intent.intent || '')) > -1;\n\nif (intent.intent === 'quote_request' || intent.intent === 'site_assessment') { score += 18; reasons.push(\"Asked for a quote or site visit\"); }\nif (intent.intent === 'financing_enquiry') { score += 12; reasons.push(\"Asked about financing\"); }\nif (isNonSales) { score -= 50; reasons.push(\"Not a sales enquiry\"); }\n\nconst conf = Number(intent.confidence || 0);\nif (conf > 0 && conf < 0.5) { score -= 10; reasons.push(\"Message is unclear\"); }\nif (!intent.intent) { score -= 15; reasons.push(\"AI could not read the message\"); }\n\nif (score < 0) { score = 0; }\nif (score > 100) { score = 100; }\n\n// Lead type - order matters\nlet tier = 'nurture';\nif (isOpenDuplicate) { tier = 'duplicate'; reasons.push(\"Already an open lead from this email\"); }\nelse if (isNonSales) { tier = 'nurture'; }\nelse if (isCustomer) { tier = 'existing_customer'; reasons.push(\"Existing customer\"); }\nelse if (score >= 65) { tier = 'enterprise'; }\nelse if (score >= 35) { tier = 'smb'; }\n\nconst tierLabels = { existing_customer: 'Existing customer', enterprise: 'Large business', smb: 'Small business', nurture: 'Low priority', duplicate: 'Duplicate' };\nconst intentLabels = { quote_request: 'Wants a quote', site_assessment: 'Wants a site visit', financing_enquiry: 'Asking about financing', general_enquiry: 'General question', maintenance_existing: 'Support for existing system', supplier_pitch: 'Supplier pitch', job_application: 'Job application', spam: 'Spam' };\n\n// Rough system size for the rep only - NOT a quote.\n// Assumes about 1300 kWh produced per kW of panels per year.\nlet estKw = 0;\nif (monthlyKwh > 0) { estKw = Math.round((monthlyKwh * 12) / 1300); }\n\n// Follow-up deadline: 15 minutes, counted in business hours only\n// (Mon-Fri 08:00-18:00, workflow timezone). A lead that arrives overnight or\n// at the weekend is due at 08:15 on the next business morning instead of\n// being escalated to the manager before anyone is at work.\nconst OPEN_HOUR = 8;\nconst CLOSE_HOUR = 18;\nconst inHours = (d) => d.weekday <= 5 && d.hour >= OPEN_HOUR && d.hour < CLOSE_HOUR;\nlet clockStart = $now;\nif (!inHours(clockStart)) {\n  if (clockStart.weekday > 5 || clockStart.hour >= CLOSE_HOUR) { clockStart = clockStart.plus({ days: 1 }); }\n  clockStart = clockStart.set({ hour: OPEN_HOUR, minute: 0, second: 0, millisecond: 0 });\n  while (clockStart.weekday > 5) { clockStart = clockStart.plus({ days: 1 }); }\n}\nconst ackDue = clockStart.plus({ minutes: 15 });\n\nreturn {\n  json: {\n    name: lead.name,\n    email: lead.email,\n    phone: lead.phone,\n    company: lead.company || '',\n    message: lead.message,\n    source: lead.source,\n    country: String(lead.country || '').toLowerCase(),\n    consent: Boolean(lead.consent),\n    receivedAt: lead.receivedAt,\n    executionId: lead.executionId,\n    hasPriorRecord: hasPriorRecord,\n    isCustomer: isCustomer,\n    isOpenDuplicate: isOpenDuplicate,\n    priorStatus: priorStatus,\n    existingRecordId: existing.id || '',\n    propertyType: propertyType,\n    roofType: roofType,\n    siteOwnership: siteOwnership,\n    monthlyKwh: monthlyKwh,\n    roofAgeYears: roofAge,\n    utilityProvider: lead.utilityProvider || '',\n    estimatedSystemKw: estKw,\n    intent: intent.intent || 'unknown',\n    intentLabel: intentLabels[intent.intent] || 'Unknown',\n    urgency: intent.urgency || 'unknown',\n    budgetSignal: intent.budgetSignal || 'none',\n    painPoint: intent.painPoint || '',\n    requestedProduct: 'commercial rooftop solar',\n    intentConfidence: conf,\n    score: score,\n    tier: tier,\n    tierLabel: tierLabels[tier] || tier,\n    reasons: reasons,\n    ackDueAt: ackDue.toUTC().toISO(),\n    ackDueLocal: ackDue.toFormat('ccc d LLL, HH:mm'),\n    receivedAfterHours: !inHours($now)\n  }\n};"
+      },
+      "id": "77c77436-8e45-4a3b-a4e5-98eac4f670c6",
+      "name": "Score And Tier Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2208,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.tier }}",
+                    "operator": {
+                      "operation": "equals",
+                      "type": "string"
+                    },
+                    "rightValue": "existing_customer"
+                  },
+                  {
+                    "leftValue": "={{ $json.tier }}",
+                    "operator": {
+                      "operation": "equals",
+                      "type": "string"
+                    },
+                    "rightValue": "enterprise"
+                  },
+                  {
+                    "leftValue": "={{ $json.tier }}",
+                    "operator": {
+                      "operation": "equals",
+                      "type": "string"
+                    },
+                    "rightValue": "smb"
+                  }
+                ],
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "Needs a sales rep"
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.tier }}",
+                    "operator": {
+                      "operation": "equals",
+                      "type": "string"
+                    },
+                    "rightValue": "nurture"
+                  }
+                ],
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "Low priority"
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.tier }}",
+                    "operator": {
+                      "operation": "equals",
+                      "type": "string"
+                    },
+                    "rightValue": "duplicate"
+                  }
+                ],
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "Duplicate"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "827e5db1-1b0d-46ff-b017-da10ac5ccf31",
+      "name": "Route By Lead Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2496,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Sales Reps"
+        },
+        "filterByFormula": "=AND({tier} = \"{{ $json.tier }}\", {active} = 1)",
+        "returnAll": false,
+        "limit": 1,
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "lastAssignedAt"
+            }
+          ]
+        }
+      },
+      "id": "ab505735-4789-4f1f-b8f6-1650cfe0864d",
+      "name": "Find Rep Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        2864,
+        416
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "email"
+          ],
+          "value": {
+            "assignedAt": "={{ $json.hasPriorRecord && $('Find Existing Lead').item.json.assignedAt ? $('Find Existing Lead').item.json.assignedAt : $now.toISO() }}",
+            "company": "={{ $json.company }}",
+            "email": "={{ $json.email }}",
+            "intent": "={{ $json.intent }}",
+            "message": "={{ $json.message }}",
+            "name": "={{ $json.name }}",
+            "score": "={{ $json.hasPriorRecord && $('Find Existing Lead').item.json.score !== undefined ? $('Find Existing Lead').item.json.score : $json.score }}",
+            "source": "={{ $json.source }}",
+            "status": "={{ $json.hasPriorRecord && $('Find Existing Lead').item.json.status ? $('Find Existing Lead').item.json.status : 'nurture' }}",
+            "tier": "={{ $json.hasPriorRecord && $('Find Existing Lead').item.json.tier ? $('Find Existing Lead').item.json.tier : 'nurture' }}"
+          }
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "43e4f302-414b-4d61-acf9-9d3d122f8df2",
+      "name": "Save As Low-Priority Lead",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        4608,
+        784
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "email"
+          ],
+          "value": {
+            "email": "={{ $('Score And Tier Lead').item.json.email }}",
+            "name": "={{ $('Score And Tier Lead').item.json.name }}",
+            "company": "={{ $('Score And Tier Lead').item.json.company }}",
+            "phone": "={{ $('Score And Tier Lead').item.json.phone }}",
+            "source": "={{ $('Score And Tier Lead').item.json.source }}",
+            "message": "={{ $('Score And Tier Lead').item.json.message }}",
+            "intent": "={{ $('Score And Tier Lead').item.json.intent }}",
+            "urgency": "={{ $('Score And Tier Lead').item.json.urgency }}",
+            "score": "={{ $('Score And Tier Lead').item.json.score }}",
+            "tier": "={{ $('Score And Tier Lead').item.json.tier }}",
+            "consent": "={{ $('Score And Tier Lead').item.json.consent }}",
+            "assignedRep": "={{ $json.repName || \"UNASSIGNED\" }}",
+            "assignedRepEmail": "={{ $json.repEmail || \"\" }}",
+            "status": "={{ $json.repEmail ? \"awaiting_ack\" : \"unassigned\" }}",
+            "assignedAt": "={{ $now.toUTC().toISO() }}",
+            "ackDueAt": "={{ $('Score And Tier Lead').item.json.ackDueAt }}"
+          }
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "a53653bf-644c-4512-b0bc-efbdc2855a81",
+      "name": "Save Lead To Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        3216,
+        416
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write the body of a short reply email to an inbound commercial solar enquiry.\n\nTheir name: {{ $('Score And Tier Lead').item.json.name }}\nTheir company: {{ $('Score And Tier Lead').item.json.company }}\nProperty type: {{ $('Score And Tier Lead').item.json.propertyType }}\nStated consumption: {{ $('Score And Tier Lead').item.json.monthlyKwh }} kWh per month\nRoof: {{ $('Score And Tier Lead').item.json.roofType }}\nThe problem they described: {{ $('Score And Tier Lead').item.json.painPoint }}\nTheir original message: {{ $('Score And Tier Lead').item.json.message }}\nWho will follow up: {{ $('Assign Rep').item.json.repName }}\n\nRules: acknowledge the specific problem they described in their own terms. Do NOT quote a price, a payback period, a system size, a tariff or a saving figure - none of those can be known before a site assessment, and stating one creates a commitment we cannot honour. Do not invent incentives, grants or tax credits. Say only that the rep will be in touch to arrange a site assessment. Four sentences maximum. Plain text, no subject line, no greeting and no sign-off - those are added separately.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You write brief, concrete replies for a commercial rooftop solar installer. You never quote prices, savings, payback periods, system sizes, tariffs, grants or tax credits - every one of those depends on a site assessment and stating one prematurely is a commercial and regulatory risk. You mirror the sender's own description of their problem rather than restating it in marketing language."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "4541bc73-ad70-45a1-8fbe-319a19653759",
+      "name": "AI Writes Reply Email",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "position": [
+        3840,
+        400
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.4",
+          "cachedResultName": "gpt-5.4"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "id": "40a41199-7d5a-475a-b250-3c7cc71cf233",
+      "name": "AI Model - Write Reply",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3840,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Score And Tier Lead').item.json.email }}",
+        "subject": "=Re: your enquiry - {{ $('Score And Tier Lead').item.json.company }}",
+        "emailType": "text",
+        "message": "=Hi {{ $('Score And Tier Lead').item.json.name }},\n\n{{ $json.text || \"Thanks for getting in touch. One of our specialists is reviewing your enquiry and will reach out shortly.\" }}\n\nBest,\n{{ $('Assign Rep').item.json.repName || \"The Sales Team\" }}",
+        "options": {
+          "appendAttribution": false,
+          "replyTo": "={{ $('Assign Rep').item.json.repEmail }}"
+        }
+      },
+      "id": "0796aac8-771d-4302-8dbd-7148b8a51041",
+      "name": "Email Reply To Lead",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        4144,
+        400
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "text": "=:sunny: *New {{ $('Score And Tier Lead').item.json.tierLabel }} solar lead - score {{ $('Score And Tier Lead').item.json.score }}/100*\nAssigned to: {{ $('Assign Rep').item.json.slackUserId ? \"<@\" + $('Assign Rep').item.json.slackUserId + \">\" : ($('Assign Rep').item.json.repName || \"NOBODY - no active rep found\") }}\n\n*{{ $('Score And Tier Lead').item.json.name }}* at *{{ $('Score And Tier Lead').item.json.company }}*\n{{ $('Score And Tier Lead').item.json.email }} | {{ $('Score And Tier Lead').item.json.phone }}\n\n:office: Building: {{ $('Score And Tier Lead').item.json.propertyType || \"not given\" }} | Own or rent: {{ $('Score And Tier Lead').item.json.siteOwnership || \"not given\" }}\n:zap: Electricity use: {{ $('Score And Tier Lead').item.json.monthlyKwh || \"not given\" }} kWh/month\n:straight_ruler: Rough system size: ~{{ $('Score And Tier Lead').item.json.estimatedSystemKw }} kW *(estimate only, not a quote)*\n:house: Roof: {{ $('Score And Tier Lead').item.json.roofType || \"not given\" }}{{ $('Score And Tier Lead').item.json.roofAgeYears ? \", \" + $('Score And Tier Lead').item.json.roofAgeYears + \" years old\" : \"\" }}\n\nWhat they want: {{ $('Score And Tier Lead').item.json.intentLabel }} | How urgent: {{ $('Score And Tier Lead').item.json.urgency }}\nTheir main problem: {{ $('Score And Tier Lead').item.json.painPoint }}\nWhy this score: {{ $('Score And Tier Lead').item.json.reasons.join(\", \") }}\n\n:stopwatch: *Mark this lead as contacted in Airtable by {{ $('Score And Tier Lead').item.json.ackDueLocal }}*{{ $('Score And Tier Lead').item.json.receivedAfterHours ? ' (it arrived outside business hours, so the 15 minutes start at 08:00)' : '' }}, or it goes to the sales manager.",
+        "otherOptions": {}
+      },
+      "id": "ea49be4f-5977-43cf-9a86-2121b7638939",
+      "name": "Alert Rep In Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        4320,
+        400
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "cachedResultName": "Lead Automation"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Lead Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "receivedAt": "={{ $('Score And Tier Lead').item.json.receivedAt }}",
+            "email": "={{ $('Score And Tier Lead').item.json.email }}",
+            "name": "={{ $('Score And Tier Lead').item.json.name }}",
+            "company": "={{ $('Score And Tier Lead').item.json.company }}",
+            "source": "={{ $('Score And Tier Lead').item.json.source }}",
+            "intent": "={{ $('Score And Tier Lead').item.json.intent }}",
+            "score": "={{ $('Score And Tier Lead').item.json.score }}",
+            "tier": "={{ $('Score And Tier Lead').item.json.tier }}",
+            "reasons": "={{ $('Score And Tier Lead').item.json.reasons.join(\", \") }}",
+            "assignedRep": "={{ [\"nurture\",\"duplicate\"].includes($('Score And Tier Lead').item.json.tier) ? \"none\" : ($('Assign Rep').item.json.repName || \"UNASSIGNED\") }}",
+            "executionId": "={{ $execution.id }}"
+          },
+          "schema": [
+            {
+              "id": "receivedAt",
+              "displayName": "receivedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tier",
+              "displayName": "tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reasons",
+              "displayName": "reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assignedRep",
+              "displayName": "assignedRep",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executionId",
+              "displayName": "executionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "e39e6ed1-486b-4142-8225-ba66ade43fd2",
+      "name": "Save To Lead Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        4768,
+        560
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Setup needed\n\n**Airtable** - base is already connected. Create two tables:\n\n**Leads** - email (unique), name, company, phone, source, message, intent, urgency, score, tier, consent, accountStatus, assignedRep, assignedRepEmail, status, assignedAt, ackDueAt, escalatedAt, previousRep\n\n**Important - accountStatus:** set it to \"customer\" for real customers. Scoring looks at THIS field, not just whether the email is already in the table - otherwise anyone who enquired twice would be treated as a customer.\n\n**Sales Reps** - repName, repEmail (unique), slackUserId, tier, active, lastAssignedAt\n\nAdd at least one rep for each tier: enterprise (large business), smb (small business), existing_customer - plus one with tier \"manager\" for escalations. slackUserId is used to @mention the rep. lastAssignedAt updates after each assignment so leads rotate fairly between reps.\n\n**Google Sheets** - a file named \"Lead Automation\" with tabs: Lead Log, Escalation Log, Error Log. Connect a Google Sheets credential (Drive or Calendar logins won't work).\n\n**Website form secret** - the webhook only accepts requests that carry a secret header. Create a Header Auth credential (e.g. name `X-Voltara-Key`, value = a long random string), select it in **New Lead From Website Form**, and have the website's server send the same header. Keep the secret server-side, never in browser JavaScript.\n\n**Errors** - already wired: Settings > Error Workflow points at this workflow. Re-select it if you import a copy.",
+        "height": 760,
+        "width": 520,
+        "color": 3
+      },
+      "id": "ebe502ab-c6d1-4c8f-b8f2-5a32869fff20",
+      "name": "Sticky Note c45e5aec",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5152,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Why the form gets a reply first\n\nThe visitor gets a \"received\" reply right after their name and email are checked - in under a second. The AI reading, scoring and reply-writing all happen after that.\n\nIf the form waited for the AI to finish, it could time out and show the visitor an error - even though their details were saved.\n\nGood to know: steps after the reply must pull lead details from **Clean Up Form Data** by name, because the reply step replaces the data being passed along.",
+        "height": 320,
+        "width": 520,
+        "color": 4
+      },
+      "id": "28f93253-8841-4838-8514-554ec5873227",
+      "name": "Sticky Note 17fbf121",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5152,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Rules set the score - AI only reads the message\n\nThe AI never decides the score. It only reads the message (what they want, how urgent, any budget hints). A fixed set of rules then adds or removes points.\n\nThis keeps scores easy to explain - each lead lists exactly why it got its score - and changing the rules doesn't mean rewriting AI prompts.\n\n**Lead type is decided in this order:**\n1. Duplicate - already an open lead from this email in the last 24 hours. Logged only: no second email, no second Slack alert.\n2. Low priority - support requests, job applications or spam. This comes before customer status, so a customer asking for support isn't treated as a sales lead.\n3. Existing customer - accountStatus is \"customer\".\n4. Large business (65+ points) / Small business (35+) / otherwise Low priority.",
+        "height": 420,
+        "width": 520,
+        "color": 5
+      },
+      "id": "cf726e26-dc14-4844-8678-b0b5c37fea6c",
+      "name": "Sticky Note 13bbd7a2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5152,
+        1168
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Assign Rep').item.json.repEmail }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "facd4920-dd79-40f7-8143-5538bff7fb55",
+      "name": "Rep Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3408,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Sales Reps"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "repEmail"
+          ],
+          "value": {
+            "repEmail": "={{ $('Assign Rep').item.json.repEmail }}",
+            "lastAssignedAt": "={{ $now.toUTC().toISO() }}"
+          }
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "ccf707bc-4a65-414e-b43d-8296389c0a50",
+      "name": "Update Rep Last Assigned Time",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        3616,
+        496
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "cachedResultName": "Lead Automation"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Lead Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "assignedRep": "none",
+            "company": "={{ $('Clean Up Form Data').item.json.company }}",
+            "email": "={{ $('Clean Up Form Data').item.json.email }}",
+            "executionId": "={{ $execution.id }}",
+            "intent": "rejected_validation",
+            "name": "={{ $('Clean Up Form Data').item.json.name }}",
+            "reasons": "missing email or name",
+            "receivedAt": "={{ $('Clean Up Form Data').item.json.receivedAt }}",
+            "score": 0,
+            "source": "={{ $('Clean Up Form Data').item.json.source }}",
+            "tier": "invalid"
+          },
+          "schema": [
+            {
+              "id": "receivedAt",
+              "displayName": "receivedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tier",
+              "displayName": "tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reasons",
+              "displayName": "reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assignedRep",
+              "displayName": "assignedRep",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executionId",
+              "displayName": "executionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "25cecbdf-9dbd-4e78-9045-b09838773a3e",
+      "name": "Log Invalid Form",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "position": [
+        880,
+        848
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "57866b10-9e45-45e9-92ba-e82994a2de15",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Sales Reps"
+        },
+        "filterByFormula": "AND({tier} = \"manager\", {active} = 1)",
+        "returnAll": false,
+        "limit": 1,
+        "options": {}
+      },
+      "id": "4d35e739-dee0-4542-ab7c-e858aef1800e",
+      "name": "Lookup Sales Manager Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        224,
+        1408
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Leads"
+        },
+        "filterByFormula": "AND(OR({status} = \"awaiting_ack\", {status} = \"unassigned\"), IS_BEFORE({ackDueAt}, NOW()))",
+        "returnAll": false,
+        "limit": 50,
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "ackDueAt"
+            }
+          ]
+        }
+      },
+      "id": "144fffae-6cda-425b-8f4a-e64f304931e8",
+      "name": "Find Overdue Lead Records",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        672,
+        1408
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID",
+          "cachedResultName": "Voltara Leads"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_AIRTABLE_TABLE_ID",
+          "cachedResultName": "Leads"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "email"
+          ],
+          "value": {
+            "email": "={{ $json.email }}",
+            "status": "escalated",
+            "escalatedAt": "={{ $now.toUTC().toISO() }}",
+            "previousRep": "={{ $json.assignedRep }}",
+            "assignedRep": "={{ $('Lookup Sales Manager').first().json.repName || \"UNASSIGNED MANAGER\" }}",
+            "assignedRepEmail": "={{ $('Lookup Sales Manager').first().json.repEmail || \"\" }}"
+          }
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "865c29ed-58e5-4bfd-9f33-a3ffd64cc37d",
+      "name": "Reassign To Manager",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        1152,
+        1408
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "text": "=:rotating_light: *{{ $('Find Overdue Leads').item.json.status === \"unassigned\" ? \"Lead has no sales rep - sending to manager\" : \"Lead not followed up in time - sending to manager\" }}*\n\n*{{ $('Find Overdue Leads').item.json.name }}* at *{{ $('Find Overdue Leads').item.json.company }}*\nLead type: {{ $('Find Overdue Leads').item.json.tier }} | Score: {{ $('Find Overdue Leads').item.json.score }}/100\n{{ $('Find Overdue Leads').item.json.email }}\n\n{{ $('Find Overdue Leads').item.json.status === \"unassigned\" ? \"No active rep was available for this lead type when it came in.\" : \"Was assigned to: \" + $('Find Overdue Leads').item.json.assignedRep }}\nNow assigned to: {{ $('Lookup Sales Manager').first().json.repName || \"NOBODY - no active manager found\" }}\nFollow-up was due: {{ $('Find Overdue Leads').item.json.ackDueAt }}",
+        "otherOptions": {}
+      },
+      "id": "d9a843d1-6710-461b-b9af-acafd3fca1d2",
+      "name": "Alert - Lead Not Followed Up",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        1424,
+        1408
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "cachedResultName": "Lead Automation"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Escalation Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "escalatedAt": "={{ $now.toUTC().toISO() }}",
+            "email": "={{ $('Find Overdue Leads').item.json.email }}",
+            "company": "={{ $('Find Overdue Leads').item.json.company }}",
+            "tier": "={{ $('Find Overdue Leads').item.json.tier }}",
+            "score": "={{ $('Find Overdue Leads').item.json.score }}",
+            "originalRep": "={{ $('Find Overdue Leads').item.json.assignedRep }}",
+            "escalatedTo": "={{ $('Lookup Sales Manager').first().json.repName }}",
+            "reason": "={{ $('Find Overdue Leads').item.json.status === \"unassigned\" ? \"No rep available\" : \"Rep did not follow up\" }}",
+            "ackDueAt": "={{ $('Find Overdue Leads').item.json.ackDueAt }}",
+            "executionId": "={{ $execution.id }}"
+          },
+          "schema": [
+            {
+              "id": "escalatedAt",
+              "displayName": "escalatedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tier",
+              "displayName": "tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "originalRep",
+              "displayName": "originalRep",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "escalatedTo",
+              "displayName": "escalatedTo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "displayName": "reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ackDueAt",
+              "displayName": "ackDueAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executionId",
+              "displayName": "executionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "0e5c982c-c539-4a11-b332-6b80536418ad",
+      "name": "Save To Escalation Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        1664,
+        1408
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "id": "3c77dbc0-ccb3-458d-aca2-a53933bf9978",
+      "name": "When Workflow Fails",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "x1",
+              "name": "workflowName",
+              "value": "={{ $json.workflow.name }}",
+              "type": "string"
+            },
+            {
+              "id": "x2",
+              "name": "failedNode",
+              "value": "={{ $json.execution.lastNodeExecuted }}",
+              "type": "string"
+            },
+            {
+              "id": "x3",
+              "name": "errorMessage",
+              "value": "={{ $json.execution.error.message }}",
+              "type": "string"
+            },
+            {
+              "id": "x4",
+              "name": "executionUrl",
+              "value": "={{ $json.execution.url }}",
+              "type": "string"
+            },
+            {
+              "id": "x5",
+              "name": "executionId",
+              "value": "={{ $json.execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "x6",
+              "name": "failedAt",
+              "value": "={{ $now.toUTC().toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1d1f4487-d73c-4c8e-98ea-cc6e3fd1163a",
+      "name": "Build Error Summary",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2400,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "text": "=:rotating_light: *Lead workflow failed*\nWorkflow: {{ $json.workflowName }}\nStep that failed: *{{ $json.failedNode }}*\nError: {{ $json.errorMessage }}\nRun ID: {{ $json.executionId }}\n{{ $json.executionUrl }}\n\nIf this happened after the form was submitted, the visitor already saw a \"received\" message - so the lead may be in Airtable without a rep. Check the Leads table for status \"unassigned\". The 5-minute follow-up check will also catch it.",
+        "otherOptions": {}
+      },
+      "id": "f9abaf2b-77fe-49b0-813b-ddbc400e01f3",
+      "name": "Alert - Workflow Failed",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        2624,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "cachedResultName": "Lead Automation"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Error Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "failedAt": "={{ $('Build Error Summary').item.json.failedAt }}",
+            "workflowName": "={{ $('Build Error Summary').item.json.workflowName }}",
+            "failedNode": "={{ $('Build Error Summary').item.json.failedNode }}",
+            "errorMessage": "={{ $('Build Error Summary').item.json.errorMessage }}",
+            "executionUrl": "={{ $('Build Error Summary').item.json.executionUrl }}",
+            "executionId": "={{ $('Build Error Summary').item.json.executionId }}"
+          },
+          "schema": [
+            {
+              "id": "failedAt",
+              "displayName": "failedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflowName",
+              "displayName": "workflowName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "failedNode",
+              "displayName": "failedNode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "errorMessage",
+              "displayName": "errorMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executionUrl",
+              "displayName": "executionUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "executionId",
+              "displayName": "executionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "id": "5c14b42e-394e-449a-b2d7-fa3b850d7b3b",
+      "name": "Save To Error Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        2624,
+        1440
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## 1 · Receive the lead & reply fast\n\nThe website form sends the lead here. Name and email are checked, and the visitor gets a \"received\" reply in under a second. Everything else happens after.\n\nIf the form waited for the AI, it could time out and show the visitor an error even though their details were saved.\n\n**Note:** later steps pull lead details from **Clean Up Form Data** by name, because the reply step replaces the data being passed along.",
+        "height": 1000,
+        "width": 1156,
+        "color": 7
+      },
+      "id": "f0c891a2-a0aa-4562-8c4a-6b0d07edefd9",
+      "name": "Phase 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2 · Check if we know them\n\nLooks up the email in the Leads table. The scoring step uses this to spot existing customers (**accountStatus = customer**) and repeat leads from the last 24 hours.\n\nIt checks accountStatus, not just whether the email exists - every lead is saved to this table, so that would mark anyone who enquired before as a customer.",
+        "height": 1000,
+        "width": 420,
+        "color": 4
+      },
+      "id": "6cc619c3-a57e-45ef-9c04-5b4f0d52c4ac",
+      "name": "Phase 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3 · AI reads the message\n\nThe AI reads the message for: what they want, how urgent it is, budget hints, and any solar details they mention (building type, roof type, own or rent, electricity use). It's told never to guess these - a made-up roof type would throw off the score.",
+        "height": 1000,
+        "width": 560,
+        "color": 6
+      },
+      "id": "f18823ea-1644-40ed-b82a-eb7434e40e70",
+      "name": "Phase 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4 · Score & sort - by rules, not AI\n\nThe AI never sets the score. It reads the message; this step adds up points using fixed rules.\n\n**Biggest factors:**\n- Monthly electricity use (up to +30) - the strongest sign of a good fit\n- Owns the building (+20) - renters need landlord approval\n- Flat or metal roof (+14 / +12) - easiest to install on\n- Asbestos roof (-25) - must be dealt with first\n- Roof 20+ years old (-15) - likely needs replacing first\n- Home, not a business (-40) - we only do commercial\n\nEvery lead lists the reasons behind its score.",
+        "height": 1000,
+        "width": 700,
+        "color": 5
+      },
+      "id": "798fd2e5-e8e6-49a0-8510-819a5e38ca1d",
+      "name": "Phase 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5 · Assign a rep & save\n\nPicks the rep for that lead type who was assigned least recently, so leads rotate fairly. Saves the lead with a 15-minute follow-up deadline, counted in business hours (Mon-Fri 08:00-18:00) - an overnight lead is due at 08:15 next business morning. Then updates the rep's last-assigned time.\n\nIf Airtable rejects the save, the team gets a Slack alert with the full lead so nobody is lost.\n\nThe rep update runs on a side branch so it doesn't overwrite the lead details passed to the next steps.",
+        "height": 1000,
+        "width": 960,
+        "color": 2
+      },
+      "id": "82b12731-5143-4059-83ed-9fe3f0dc72ae",
+      "name": "Phase 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2816,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 6 · Reply & alert the rep\n\nAI writes a short reply based on what the lead actually said. It's not allowed to mention prices, savings, payback time, system size, rates or grants - those all need a site visit first, and promising one early is risky.\n\nIf the AI fails, a safe standard reply is sent instead.\n\nThe Slack alert tells the rep their follow-up deadline (15 minutes, counted in business hours).",
+        "height": 1000,
+        "width": 760,
+        "color": 3
+      },
+      "id": "62c8be9f-c7af-466b-8a4b-fe172f001405",
+      "name": "Phase 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3792,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 7 · Low-priority leads & logging\n\nLow-priority and duplicate leads are saved here - no email, no rep alert.\n\nEvery lead is written to the Lead Log, including invalid form submissions, so you can tell a quiet week apart from a broken form.",
+        "height": 1000,
+        "width": 520
+      },
+      "id": "3833bb3f-8cf4-41c9-abdb-1c909e6d87bd",
+      "name": "Phase 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 8 · Follow-up check - runs every 5 minutes\n\nThis stops good leads slipping through the cracks. A lead nobody calls back is lost money.\n\nFinds leads that have no rep, or weren't followed up by their deadline (15 business minutes), and reassigns them to the sales manager - noting which case it was.\n\n**If there are no overdue leads, it simply stops** - nothing to do.\n\nEverything is tracked in Airtable, so restarting n8n doesn't lose anything.",
+        "height": 596,
+        "width": 2152,
+        "color": 3
+      },
+      "id": "ac26ea05-78d4-4e2a-83d4-255207a31f87",
+      "name": "Phase 8",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 9 · If something breaks\n\nThis branch runs whenever a live run fails. It works because the workflow is its own error workflow (**Settings > Error Workflow = this workflow**). If you import or duplicate it, select the copy there again. Manual test runs don't trigger it.\n\nThe alert reminds you that if the failure happened after the form was submitted, the visitor already saw a \"received\" message - so look for a lead without a rep rather than assuming nothing was saved.",
+        "height": 592,
+        "width": 760,
+        "color": 3
+      },
+      "id": "f131767f-99eb-4aac-a7e8-8508baa02a70",
+      "name": "Phase 9",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2112,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "text": "=:rotating_light: *New {{ $('Score And Tier Lead').item.json.tierLabel }} lead could NOT be saved to Airtable - follow up by hand*\nAssigned rep: {{ $('Assign Rep').item.json.slackUserId ? \"<@\" + $('Assign Rep').item.json.slackUserId + \">\" : ($('Assign Rep').item.json.repName || \"NOBODY - no active rep found\") }}\n\n*{{ $('Score And Tier Lead').item.json.name }}* at *{{ $('Score And Tier Lead').item.json.company }}*\n{{ $('Score And Tier Lead').item.json.email }} | {{ $('Score And Tier Lead').item.json.phone }}\nScore: {{ $('Score And Tier Lead').item.json.score }}/100 | What they want: {{ $('Score And Tier Lead').item.json.intentLabel }}\nMessage: {{ $('Score And Tier Lead').item.json.message }}\n\nAirtable error: {{ $json.error?.message || $json.error || 'unknown error' }}\n\nThe visitor already saw a \"received\" message, but NO reply email was sent and the follow-up check can't see this lead. Add it to the Leads table and contact them.",
+        "otherOptions": {}
+      },
+      "id": "c4d5e6f7-1111-4b2c-8d3e-1f2a3b4c5d01",
+      "name": "Alert - Lead Not Saved",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "position": [
+        3408,
+        784
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Airtable search returns { id, createdTime, fields: {...} }. Flatten it so\n// later steps can read the record's fields directly by name.\nreturn $input.all().map((it, i) => {\n  const j = it.json || {};\n  const flat = j.fields ? Object.assign({ id: j.id, createdTime: j.createdTime }, j.fields) : j;\n  return { json: flat, pairedItem: { item: i } };\n});"
+      },
+      "id": "f7a1b2c3-flat-4d5e-8f9a-vlflatlead01",
+      "name": "Find Existing Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        624
+      ],
+      "notes": "Flattens the Airtable search result so later steps read fields by name."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Airtable search returns { id, createdTime, fields: {...} }. Flatten it so\n// later steps can read the record's fields directly by name.\nreturn $input.all().map((it, i) => {\n  const j = it.json || {};\n  const flat = j.fields ? Object.assign({ id: j.id, createdTime: j.createdTime }, j.fields) : j;\n  return { json: flat, pairedItem: { item: i } };\n});"
+      },
+      "id": "f7a1b2c3-flat-4d5e-8f9a-vlflatrep001",
+      "name": "Assign Rep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3040,
+        416
+      ],
+      "notes": "Flattens the Airtable search result so later steps read fields by name."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Airtable search returns { id, createdTime, fields: {...} }. Flatten it so\n// later steps can read the record's fields directly by name.\nreturn $input.all().map((it, i) => {\n  const j = it.json || {};\n  const flat = j.fields ? Object.assign({ id: j.id, createdTime: j.createdTime }, j.fields) : j;\n  return { json: flat, pairedItem: { item: i } };\n});"
+      },
+      "id": "f7a1b2c3-flat-4d5e-8f9a-vlflatmgr001",
+      "name": "Lookup Sales Manager",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        1408
+      ],
+      "notes": "Flattens the Airtable search result so later steps read fields by name."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Airtable search returns { id, createdTime, fields: {...} }. Flatten it so\n// later steps can read the record's fields directly by name.\nreturn $input.all().map((it, i) => {\n  const j = it.json || {};\n  const flat = j.fields ? Object.assign({ id: j.id, createdTime: j.createdTime }, j.fields) : j;\n  return { json: flat, pairedItem: { item: i } };\n});"
+      },
+      "id": "f7a1b2c3-flat-4d5e-8f9a-vlflatovd001",
+      "name": "Find Overdue Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        1408
+      ],
+      "notes": "Flattens the Airtable search result so later steps read fields by name."
+    }
+  ],
+  "connections": {
+    "Score And Tier Lead": {
+      "main": [
+        [
+          {
+            "node": "Route By Lead Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rep Found?": {
+      "main": [
+        [
+          {
+            "node": "Update Rep Last Assigned Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Lookup Sales Manager Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Error Summary": {
+      "main": [
+        [
+          {
+            "node": "Alert - Workflow Failed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save To Error Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Lead From Website Form": {
+      "main": [
+        [
+          {
+            "node": "Clean Up Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Up Form Data": {
+      "main": [
+        [
+          {
+            "node": "Name & Email Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Name & Email Valid?": {
+      "main": [
+        [
+          {
+            "node": "Reply To Form - Received",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply To Form - Missing Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply To Form - Received": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Lead Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply To Form - Missing Info": {
+      "main": [
+        [
+          {
+            "node": "Log Invalid Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Reads Enquiry": {
+      "main": [
+        [
+          {
+            "node": "Score And Tier Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Model - Read Enquiry": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Reads Enquiry",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save As Low-Priority Lead": {
+      "main": [
+        [
+          {
+            "node": "Save To Lead Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead To Airtable": {
+      "main": [
+        [
+          {
+            "node": "AI Writes Reply Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Rep Found?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert - Lead Not Saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Writes Reply Email": {
+      "main": [
+        [
+          {
+            "node": "Email Reply To Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Model - Write Reply": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Writes Reply Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Reply To Lead": {
+      "main": [
+        [
+          {
+            "node": "Alert Rep In Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Rep In Slack": {
+      "main": [
+        [
+          {
+            "node": "Save To Lead Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reassign To Manager": {
+      "main": [
+        [
+          {
+            "node": "Alert - Lead Not Followed Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert - Lead Not Followed Up": {
+      "main": [
+        [
+          {
+            "node": "Save To Escalation Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Workflow Fails": {
+      "main": [
+        [
+          {
+            "node": "Build Error Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Lead Type": {
+      "main": [
+        [
+          {
+            "node": "Find Rep Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save As Low-Priority Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save To Lead Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert - Lead Not Saved": {
+      "main": [
+        [
+          {
+            "node": "Save To Lead Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Lead Record": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "AI Reads Enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Rep Record": {
+      "main": [
+        [
+          {
+            "node": "Assign Rep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign Rep": {
+      "main": [
+        [
+          {
+            "node": "Save Lead To Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Sales Manager Record": {
+      "main": [
+        [
+          {
+            "node": "Lookup Sales Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Sales Manager": {
+      "main": [
+        [
+          {
+            "node": "Find Overdue Lead Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Overdue Lead Records": {
+      "main": [
+        [
+          {
+            "node": "Find Overdue Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Overdue Leads": {
+      "main": [
+        [
+          {
+            "node": "Reassign To Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Manila",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}
