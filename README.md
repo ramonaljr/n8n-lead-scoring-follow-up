@@ -39,7 +39,7 @@ Triggers: `New Lead From Website Form`, `Reply To Form - Received`, `Reply To Fo
 2. Create these credentials and select them on the nodes that need them:
 
    - Airtable (personal access token) (8 nodes)
-   - Slack (OAuth2) (4 nodes)
+   - Slack API (bot token) (4 nodes): a Slack app's bot token, with the bot invited to the channel
    - Google Sheets (OAuth2) (4 nodes)
    - OpenAI (2 nodes)
    - Header auth (Apollo API key) (1 node)
