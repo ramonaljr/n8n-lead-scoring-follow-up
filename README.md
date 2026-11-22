@@ -28,10 +28,10 @@ Built an n8n workflow that replies to the website form in under a second, checks
 
 | File | What it is |
 |---|---|
-| `workflow.json` | The n8n workflow, 48 nodes, ready to import |
+| `workflow.json` | The n8n workflow, 49 nodes, ready to import |
 | `docs/process-map.svg` | The process map from the case study |
 
-Triggers: `New Lead From Website Form`, `Reply To Form - Received`, `Reply To Form - Missing Info`, `Every 5 Minutes`, `When Workflow Fails`.
+Triggers: `New Lead From Website Form`, `Demo Enquiry Form`, `Reply To Form - Received`, `Reply To Form - Missing Info`, `Every 5 Minutes`, `When Workflow Fails`.
 
 ## Set it up
 
@@ -58,5 +58,6 @@ Tools: n8n, Airtable, Gmail, Slack, OpenAI.
 
 ## Notes
 
+- `Demo Enquiry Form` is an n8n form with the same fields the website sends, so the whole workflow can be tested or demoed without the website. It can be deleted in production.
 - Credentials, webhook IDs, pinned test data and account-specific IDs were removed before publishing. n8n assigns new webhook URLs on import.
 - Built by Ramon Vallejera Jr., AI Automation Specialist.

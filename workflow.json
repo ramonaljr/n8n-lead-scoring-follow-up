@@ -18,7 +18,7 @@
       "typeVersion": 2.1,
       "position": [
         0,
-        640
+        432
       ]
     },
     {
@@ -131,7 +131,7 @@
       "typeVersion": 3.4,
       "position": [
         224,
-        640
+        432
       ]
     },
     {
@@ -170,7 +170,7 @@
       "typeVersion": 2.2,
       "position": [
         448,
-        640
+        432
       ]
     },
     {
@@ -187,8 +187,9 @@
       "typeVersion": 1.5,
       "position": [
         688,
-        624
-      ]
+        416
+      ],
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -204,8 +205,9 @@
       "typeVersion": 1.5,
       "position": [
         672,
-        848
-      ]
+        640
+      ],
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -236,8 +238,8 @@
       "maxTries": 3,
       "waitBetweenTries": 2000,
       "position": [
-        1168,
-        624
+        1184,
+        416
       ],
       "onError": "continueRegularOutput"
     },
@@ -259,7 +261,7 @@
       "waitBetweenTries": 2000,
       "position": [
         1664,
-        624
+        416
       ],
       "onError": "continueRegularOutput"
     },
@@ -787,8 +789,8 @@
       "maxTries": 3,
       "waitBetweenTries": 2000,
       "position": [
-        4768,
-        560
+        4784,
+        656
       ],
       "onError": "continueRegularOutput"
     },
@@ -804,8 +806,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        5152,
-        0
+        2896,
+        1072
       ]
     },
     {
@@ -820,8 +822,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        5152,
-        800
+        3440,
+        1072
       ]
     },
     {
@@ -836,8 +838,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        5152,
-        1168
+        3984,
+        1072
       ]
     },
     {
@@ -1057,7 +1059,7 @@
       "waitBetweenTries": 2000,
       "position": [
         880,
-        848
+        640
       ],
       "onError": "continueRegularOutput"
     },
@@ -1712,7 +1714,7 @@
       "waitBetweenTries": 2000,
       "position": [
         3408,
-        784
+        768
       ],
       "onError": "continueRegularOutput"
     },
@@ -1726,7 +1728,7 @@
       "typeVersion": 2,
       "position": [
         1360,
-        624
+        416
       ],
       "notes": "Flattens the Airtable search result so later steps read fields by name."
     },
@@ -1771,6 +1773,136 @@
         1408
       ],
       "notes": "Flattens the Airtable search result so later steps read fields by name."
+    },
+    {
+      "parameters": {
+        "formTitle": "Voltara Commercial Solar - Demo Enquiry",
+        "formDescription": "Demo only. Fills in the same details the website form sends, so the whole workflow can be shown live.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "fieldName": "name",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldName": "email",
+              "fieldType": "text",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone",
+              "fieldName": "phone",
+              "fieldType": "text",
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Company",
+              "fieldName": "company",
+              "fieldType": "text",
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Message",
+              "fieldName": "message",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Country",
+              "fieldName": "country",
+              "fieldType": "text",
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Property type",
+              "fieldName": "propertyType",
+              "fieldType": "dropdown",
+              "requiredField": false,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "commercial"
+                  },
+                  {
+                    "option": "industrial"
+                  },
+                  {
+                    "option": "residential"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Monthly electricity use (kWh)",
+              "fieldName": "monthlyKwh",
+              "fieldType": "number",
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Roof type",
+              "fieldName": "roofType",
+              "fieldType": "dropdown",
+              "requiredField": false,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "flat"
+                  },
+                  {
+                    "option": "metal"
+                  },
+                  {
+                    "option": "tile"
+                  },
+                  {
+                    "option": "shingle"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Site ownership",
+              "fieldName": "siteOwnership",
+              "fieldType": "dropdown",
+              "requiredField": false,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "own"
+                  },
+                  {
+                    "option": "lease"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Roof age (years)",
+              "fieldName": "roofAgeYears",
+              "fieldType": "number",
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Utility provider",
+              "fieldName": "utilityProvider",
+              "fieldType": "text",
+              "requiredField": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8329768b-1b8a-49a5-9755-7b3ed668b950",
+      "name": "Demo Enquiry Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        640
+      ]
     }
   ],
   "connections": {
@@ -2141,12 +2273,23 @@
           }
         ]
       ]
+    },
+    "Demo Enquiry Form": {
+      "main": [
+        [
+          {
+            "node": "Clean Up Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
-    "timezone": "Asia/Manila",
-    "binaryMode": "separate"
+    "binaryMode": "separate",
+    "timezone": "Asia/Manila"
   },
   "pinData": {}
 }
